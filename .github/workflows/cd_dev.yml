@@ -29,6 +29,9 @@ jobs:
 
             export PATH="$HOME/.local/share/pnpm:$PATH"
 
+            node -v
+            pnpm -v
+
             cd test-deploy/
             git pull
 
