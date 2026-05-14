@@ -1,0 +1,36 @@
+name: Deploying to dev
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_everything:
+    name: Deploying everything to the staging cluster
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Write ssh key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 600 ~/ssh_key
+
+      - name: Deploy on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i ~/ssh_key \
+            ubuntu@ec2-13-50-235-147.eu-north-1.compute.amazonaws.com << 'EOF'
+            
+            set -e
+
+            cd test-deploy/
+            git pull
+
+            pnpm install
+            pnpm run build
+
+            pm2 restart docs
+            pm2 restart web
+
+          EOF
